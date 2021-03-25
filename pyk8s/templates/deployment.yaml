@@ -1,61 +1,50 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "pyk8s.fullname" . }}
+  name: "{{ $.Chart.Name }}-deployment"
+  namespace: "{{ .Values.namespace }}"
   labels:
-    {{- include "pyk8s.labels" . | nindent 4 }}
+    app: {{ .Values.deployment.labels.app }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels:
-      {{- include "pyk8s.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.deployment.labels.app }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "pyk8s.selectorLabels" . | nindent 8 }}
+        app: {{ .Values.deployment.labels.app }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "pyk8s.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+      - name: "{{ $.Chart.Name }}-volume"
+        persistentVolumeClaim:
+          claimName: "{{ $.Chart.Name }}-volume-claim"
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
+      - name: "{{ $.Chart.Name }}"
+        image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.deployment.containerPort }}
+        resources:
+          limits:
+            cpu: {{ .Values.deployment.resources.limits.cpu }}
+            memory: {{ .Values.deployment.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.deployment.resources.requests.cpu }}
+            memory: {{ .Values.deployment.resources.requests.memory }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.deployment.containerPort }}
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        env:
+        - name: DUMP_LOCATION
+          valueFrom:
+            configMapKeyRef:
+              name: "{{ $.Chart.Name }}-config"
+              key: DUMP_LOCATION
+        volumeMounts:
+        - mountPath: "{{ .Values.config.dumpLocaton }}"
+          name: "{{ $.Chart.Name }}-volume"
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{ .Values.nodeSelector.key }}: "{{ .Values.nodeSelector.value }}"
