@@ -6,9 +6,8 @@ deployment:
   replicaCount: 1
   image:
     repository: anaikdocker/py
-    pullPolicy: IfNotPresent
     tag: "2"
-  
+
   containerPort: 5000
 
   podAnnotations: {}
@@ -51,3 +50,10 @@ config:
 
 poddisruptionbudget:
   maxUnavailable: 1
+
+canary:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: anaikdocker/py
+    tag: "3"

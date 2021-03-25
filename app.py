@@ -7,7 +7,7 @@ app.config['DUMP_LOCATION'] = os.getenv('DUMP_LOCATION')
 
 @app.route('/')
 def hello():
-    return "Hello World!"
+    return "Hello World! v2"
 
 def write2file(file,data):
     with open(file,'w') as fl:
