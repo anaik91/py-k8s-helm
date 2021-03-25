@@ -48,3 +48,6 @@ persistentVolume:
 
 config:
   dumpLocaton: /tmp
+
+poddisruptionbudget:
+  maxUnavailable: 1

@@ -4,7 +4,7 @@ metadata:
   name: "{{ $.Chart.Name }}-pdb"
   namespace: "{{ .Values.namespace }}"
 spec:
-  maxUnavailable: 1
+  maxUnavailable: {{ .Values.poddisruptionbudget.maxUnavailable }}
   selector:
     matchLabels:
       app: {{ .Values.deployment.labels.app }}
