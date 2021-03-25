@@ -4,11 +4,9 @@ deployment:
   labels:
     app: py
   replicaCount: 1
-
   image:
     repository: anaikdocker/py
     pullPolicy: IfNotPresent
-
     tag: "2"
   
   containerPort: 5000
