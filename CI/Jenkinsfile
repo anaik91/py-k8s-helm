@@ -9,6 +9,10 @@ pipeline {
     }
 
     stages {
+        stage('CHECKOUT') {
+            checkout scm
+        }
+
         stage('LINT') {
             steps {
                 echo 'Linting'
@@ -22,7 +26,7 @@ pipeline {
             steps {
                 echo 'bulding'
                 sh '''
-                docker info
+                docker info --format '{{json .ServerVersion}}'
                 cd src
                 docker build -t ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER} .
                 '''
@@ -33,7 +37,7 @@ pipeline {
             steps {
                 echo 'testing'
                 sh '''
-                docker info
+                docker info --format '{{json .ServerVersion}}'
                 DOCKERCONTAINER=$(docker run --name ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER} -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
                 local_port=$(docker inspect --format='{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}}{{end}}' ${DOCKERCONTAINER})
                 sleep 3
