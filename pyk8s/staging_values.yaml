@@ -25,8 +25,8 @@ service:
   port: 8080
 
 autoscaling:
-  minReplicas: 3
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 1
   targetMemoryUtilization: 20Mi
 
 nodeSelector:

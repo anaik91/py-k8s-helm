@@ -16,7 +16,7 @@ spec:
         app: {{ .Values.deployment.labels.app }}
     spec:
       volumes:
-      - name: "{{ $.Chart.Name }}-volume"
+      - name: "{{ $.Chart.Name }}-{{ .Values.namespace }}-volume"
         persistentVolumeClaim:
           claimName: "{{ $.Chart.Name }}-volume-claim"
       containers:
@@ -45,6 +45,6 @@ spec:
               key: DUMP_LOCATION
         volumeMounts:
         - mountPath: "{{ .Values.config.dumpLocaton }}"
-          name: "{{ $.Chart.Name }}-volume"
+          name: "{{ $.Chart.Name }}-{{ .Values.namespace }}-volume"
       nodeSelector:
         {{ .Values.nodeSelector.key }}: "{{ .Values.nodeSelector.value }}"
