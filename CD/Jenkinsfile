@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('STAGING') {
+            steps {
+                    environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'staging'
+                }
+                sh 'bash scripts/pre-checks.sh'
+                sh 'bash scripts/deploy_helm.sh'
+                sh 'bash scripts/post-checks.sh'
+            }
+        }
+        
+        stage('PRE-PROD') {
+            steps {
+                environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'pre-prod'
+                }
+                sh 'bash scripts/pre-checks.sh'
+                sh 'bash scripts/deploy_helm.sh'
+                sh 'bash scripts/post-checks.sh'
+            }
+        }
+        
+        
+        stage('PRODUCTION') {
+            steps {
+                environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'pre-prod'
+                }
+                sh 'bash scripts/pre-checks.sh'
+                sh 'bash scripts/deploy_helm.sh'
+                sh 'bash scripts/post-checks.sh'
+            }
+        }
+    }
+}
