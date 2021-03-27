@@ -12,7 +12,7 @@ pipeline {
             steps {
                 echo 'STAGING'
                 sh "kubectl get pods --kubeconfig $STAGING_CONFIG -n staging"
-                sh "helm upgrade --install --kubeconfig $STAGING_CONFIG -f pyk8s/staging_values.yaml  staging pyk8s"
+                sh "helm upgrade --install --kubeconfig $STAGING_CONFIG -f helmv2/staging_values.yaml  staging helmv2"
                 sh "helm ls --kubeconfig $STAGING_CONFIG"
                 sh "kubectl get pods --kubeconfig $STAGING_CONFIG -n staging"
             }
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 echo 'PRE-PROD'
                 sh "kubectl get pods --kubeconfig $PREPROD_CONFIG -n pre-prod"
-                sh "helm upgrade --install --kubeconfig $PREPROD_CONFIG -f pyk8s/preprod_values.yaml pre-prod pyk8s"
+                sh "helm upgrade --install --kubeconfig $PREPROD_CONFIG -f helmv2/preprod_values.yaml pre-prod helmv2"
                 sh "helm ls --kubeconfig $PREPROD_CONFIG"
                 sh "kubectl get pods --kubeconfig $STAGING_CONFIG -n staging"
             }
@@ -32,7 +32,7 @@ pipeline {
             steps {
                 echo 'PRODUCTION'
                 sh "kubectl get pods --kubeconfig $PROD_CONFIG -n production"
-                sh "helm upgrade --install --kubeconfig $PROD_CONFIG -f pyk8s/prod_values.yaml production pyk8s"
+                sh "helm upgrade --install --kubeconfig $PROD_CONFIG -f helmv2/prod_values.yaml production helmv2"
                 sh "helm ls --kubeconfig $PROD_CONFIG"
                 sh "kubectl get pods --kubeconfig $STAGING_CONFIG -n staging"
             }
