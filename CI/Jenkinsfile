@@ -51,7 +51,7 @@ pipeline {
                 EPOCH=$(date +%s)
                 docker info
                 docker login -u ${DOCKER_HUB_CREDS_USR} -p ${DOCKER_HUB_CREDS_PSW}
-                docker build -t ${DOCKER_IMGE_PREFIX}:${BUILD_NUMBER} .
+                docker push ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER}
                 '''
             }
         }
