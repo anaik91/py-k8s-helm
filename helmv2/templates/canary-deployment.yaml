@@ -1,0 +1,57 @@
+{{- if .Values.canary.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ $.Chart.Name }}-canary-deployment"
+  namespace: "{{ .Values.namespace }}"
+  labels:
+    app: {{ .Values.deployment.labels.app }}
+spec:
+  replicas: {{ .Values.canary.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.labels.app }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.labels.app }}
+    spec:
+      volumes:
+      - name: "{{ $.Chart.Name }}-{{ .Values.namespace }}-volume"
+        persistentVolumeClaim:
+          claimName: "{{ $.Chart.Name }}-volume-claim"
+      containers:
+      - name: "{{ $.Chart.Name }}"
+        image: "{{ .Values.canary.image.repository }}:{{ .Values.canary.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.deployment.containerPort }}
+        resources:
+          limits:
+            cpu: {{ .Values.deployment.resources.limits.cpu }}
+            memory: {{ .Values.deployment.resources.limits.memory }}
+          requests:
+            cpu: {{ .Values.deployment.resources.requests.cpu }}
+            memory: {{ .Values.deployment.resources.requests.memory }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.deployment.containerPort }}
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        env:
+        - name: DUMP_LOCATION
+          valueFrom:
+            configMapKeyRef:
+              name: "{{ $.Chart.Name }}-config"
+              key: DUMP_LOCATION
+        volumeMounts:
+        - mountPath: "{{ .Values.config.dumpLocaton }}"
+          name: "{{ $.Chart.Name }}-{{ .Values.namespace }}-volume"
+      nodeSelector:
+        {{ .Values.nodeSelector.key }}: "{{ .Values.nodeSelector.value }}"
+{{- end }}
