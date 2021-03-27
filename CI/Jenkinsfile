@@ -36,6 +36,7 @@ pipeline {
                 docker info
                 DOCKERCONTAINER=$(docker run --name ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER} -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
                 local_port=$(docker inspect --format='{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}}{{end}}' ${DOCKERCONTAINER})
+                sleep 3
                 curl 0:${local_port}
                 curl 0:${local_port}/healthz
                 docker kill ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER} && docker rm ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER}
