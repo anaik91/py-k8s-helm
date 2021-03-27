@@ -33,8 +33,11 @@ pipeline {
                 echo 'testing'
                 sh '''
                 docker info
-                DOCKERCONTAINER=$(docker run -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
+                DOCKERCONTAINER=$(docker run --name ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER} -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
                 local_port=$(docker inspect --format='{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}}{{end}}' ${DOCKERCONTAINER})
+                curl 0:${local_port}
+                curl 0:${local_port}/healthz
+                docker kill ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER} && docker rm ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER}
                 '''
             }
         }
@@ -45,7 +48,7 @@ pipeline {
                 sh '''
                 EPOCH=$(date +%s)
                 docker info
-                docker login -u ${DOCKER_HUB_CREDS_USR} -p {DOCKER_HUB_CREDS_PSW}
+                docker login -u ${DOCKER_HUB_CREDS_USR} -p ${DOCKER_HUB_CREDS_PSW}
                 docker build -t ${DOCKER_IMGE_PREFIX}:${BUILD_NUMBER} .
                 '''
             }
