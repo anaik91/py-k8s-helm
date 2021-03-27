@@ -3,11 +3,12 @@ pipeline {
 
     stages {
         stage('STAGING') {
-            steps {
-                    environment {
+            environment {
                     CONFIG = credentials('kubeconfig')
                     ENV    = 'staging'
-                }
+            }
+
+            steps {
                 sh 'bash scripts/pre-checks.sh'
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
@@ -15,11 +16,12 @@ pipeline {
         }
         
         stage('PRE-PROD') {
-            steps {
-                environment {
+            environment {
                     CONFIG = credentials('kubeconfig')
                     ENV    = 'pre-prod'
-                }
+            }
+
+            steps {
                 sh 'bash scripts/pre-checks.sh'
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
@@ -28,11 +30,12 @@ pipeline {
         
         
         stage('PRODUCTION') {
-            steps {
-                environment {
+            environment {
                     CONFIG = credentials('kubeconfig')
-                    ENV    = 'pre-prod'
-                }
+                    ENV    = 'production'
+            }
+
+            steps {
                 sh 'bash scripts/pre-checks.sh'
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
