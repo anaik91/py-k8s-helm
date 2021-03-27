@@ -1,0 +1,59 @@
+namespace: staging
+
+deployment:
+  labels:
+    app: py
+  replicaCount: 1
+  image:
+    repository: anaikdocker/py
+    tag: "2"
+
+  containerPort: 5000
+
+  podAnnotations: {}
+
+  resources: 
+    limits:
+      cpu: "1"
+      memory: "200Mi"
+    requests:
+      cpu: 500m
+      memory: "100Mi"
+
+service:
+  type: NodePort
+  port: 8080
+
+autoscaling:
+  minReplicas: 3
+  maxReplicas: 5
+  targetMemoryUtilization: 20Mi
+
+nodeSelector:
+  key: app
+  value: py
+
+tolerations: []
+
+affinity: {}
+
+persistentVolume:
+  path: /mnt/data
+  storageClassName: local-storage
+  volumeMode: Filesystem
+  capacity:
+    storage: 2Gi
+  accessModes: ReadWriteOnce
+
+config:
+  dumpLocaton: /tmp
+
+poddisruptionbudget:
+  maxUnavailable: 1
+
+canary:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: anaikdocker/py
+    tag: "3"
