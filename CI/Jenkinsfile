@@ -9,10 +9,6 @@ pipeline {
     }
 
     stages {
-        stage('CHECKOUT') {
-            checkout scm
-        }
-
         stage('LINT') {
             steps {
                 echo 'Linting'
