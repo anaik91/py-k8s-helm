@@ -8,4 +8,4 @@ echo "Checking if K8s is UP"
 kubectl cluster-info
 
 echo "Resource Status in ${ENV}"
-kubectl get deploy,svc,pv,pvc,configmap -n ${ENV}
+kubectl get --kubeconfig ${CONFIG} deploy,svc,pv,pvc,configmap  -n ${ENV}
