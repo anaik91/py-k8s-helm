@@ -4,6 +4,7 @@ pipeline {
     environment {
         DUMP_LOCATION = '/tmp'
         DOCKER_IMAGE_PREFIX = 'anaikdocker/py'
+        DOCKER_TMP_PREFIX = 'anaikdocker'
         DOCKER_HUB_CREDS = credentials('DOCKER_HUB')
     }
 
@@ -33,11 +34,11 @@ pipeline {
                 echo 'testing'
                 sh '''
                 docker info
-                DOCKERCONTAINER=$(docker run --name ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER} -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
+                DOCKERCONTAINER=$(docker run --name ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER} -d -e DUMP_LOCATION=${DUMP_LOCATION} -P ${DOCKER_IMAGE_PREFIX}:${BUILD_NUMBER})
                 local_port=$(docker inspect --format='{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}}{{end}}' ${DOCKERCONTAINER})
                 curl 0:${local_port}
                 curl 0:${local_port}/healthz
-                docker kill ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER} && docker rm ${DOCKER_IMAGE_PREFIX}_${BUILD_NUMBER}
+                docker kill ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER} && docker rm ${DOCKER_TMP_PREFIX}_${BUILD_NUMBER}
                 '''
             }
         }
