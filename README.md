@@ -51,7 +51,7 @@ Configure Jenkins Credentials
 - Configure Credential of kind **Secret file** with name `kubeconfig` and point it to kubeconfig
 - Configure Credential of kind **Username with password** with name `DOCKER_HUB` and set docker hub credentials 
 
-#### Configuring CI Pipeline for building Docker
+#### Configuring CI Pipeline for building Docker Image
 
 To configure the CI Pipeline configure a pipeline Job  and set the Jenkinsfile avaiable in the below location
 
