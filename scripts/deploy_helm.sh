@@ -1,5 +1,6 @@
 #!/bin/bash
-kubectl get pods --kubeconfig ${CONFIG} -n staging
+set -e
+kubectl get pods --kubeconfig ${CONFIG} -n ${ENV}
 if [ "$( helm ls  --output json | jq  '.Releases[] | select(.Name=="${ENV}")' | wc -l )" -gt 0 ] ; then
     echo "is Deployed"
     helm upgrade --kubeconfig ${CONFIG} -f helmv2/${ENV}_values.yaml  ${ENV} ./helmv2
