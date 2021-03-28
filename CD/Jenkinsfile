@@ -1,24 +1,41 @@
 def createNamespace (namespace) {
     echo "Creating namespace ${namespace} if needed"
-
     sh "[ ! -z \"\$(kubectl get ns ${namespace} -o name 2>/dev/null)\" ] || kubectl create ns ${namespace}"
 }
 
 pipeline {
+
+    parameters {
+        string (name: 'GIT_REPO',           defaultValue: 'https://github.com/anaik91/py-k8s-helm.git',  description: 'Git Repo')
+        string (name: 'GIT_BRANCH',           defaultValue: 'master',  description: 'Git branch to build')
+        string (name: 'GIT_CREDS',           defaultValue: '',  description: 'Git branch to build')
+        booleanParam (name: 'DEPLOY_TO_PROD', defaultValue: false,     description: 'If build and tests are good, proceed and deploy to production without manual approval')
+    }
+
     agent any
 
     stages {
+
+        stage('Git clone and setup') {
+            steps {
+                echo "Check out acme code"
+                git branch: "${GIT_BRANCH}" ,
+                        credentialsId: "${GIT_CREDS}",
+                        url: "${GIT_REPO}"
+            }
+        }
+
         stage('STAGING') {
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'staging'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'staging'
             }
 
             steps {
-                script {
-                    createNamespace(${ENV})
-                }
                 sh 'bash scripts/pre-checks.sh'
+                script {
+                    createNamespace("${ENV}")
+                }
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
             }
@@ -26,15 +43,15 @@ pipeline {
         
         stage('PRE-PROD') {
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'pre-prod'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'pre-prod'
             }
 
             steps {
-                script {
-                    createNamespace(${ENV})
-                }
                 sh 'bash scripts/pre-checks.sh'
+                script {
+                    createNamespace("${ENV}")
+                }
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
             }
@@ -42,16 +59,20 @@ pipeline {
         
         
         stage('PRODUCTION') {
+            when {
+                expression { params.DEPLOY_TO_PROD == true }
+            }
+
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'production'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'production'
             }
 
             steps {
-                script {
-                    createNamespace(${ENV})
-                }
                 sh 'bash scripts/pre-checks.sh'
+                script {
+                    createNamespace("${ENV}")
+                }
                 sh 'bash scripts/deploy_helm.sh'
                 sh 'bash scripts/post-checks.sh'
             }
