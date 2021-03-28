@@ -9,3 +9,4 @@ else
     helm install  --kubeconfig ${CONFIG} --wait --timeout 10 -f helmv2/${ENV}_values.yaml  -n ${ENV} ./helmv2 
 fi
 helm ls
+helm test ${ENV} --cleanup
