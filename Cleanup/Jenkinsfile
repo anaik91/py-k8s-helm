@@ -4,38 +4,34 @@ pipeline {
     stages {
         stage('STAGING') {
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'staging'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'staging'
             }
 
             steps {
-                sh 'helm del --purge ${ENV} '
-                sh 'helm ls ${ENV}'
+                sh 'bash scripts/undeploy_helm.sh'
             }
         }
         
         stage('PRE-PROD') {
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'pre-prod'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'pre-prod'
             }
 
             steps {
-                sh 'helm del --purge ${ENV} '
-                sh 'helm ls ${ENV}'
+                sh 'bash scripts/undeploy_helm.sh'
             }
         }
         
-        
         stage('PRODUCTION') {
             environment {
-                    CONFIG = credentials('kubeconfig')
-                    ENV    = 'production'
+                CONFIG = credentials('kubeconfig')
+                ENV    = 'production'
             }
 
             steps {
-                sh 'helm del --purge ${ENV} '
-                sh 'helm ls ${ENV}'
+                sh 'bash scripts/undeploy_helm.sh'
             }
         }
     }
