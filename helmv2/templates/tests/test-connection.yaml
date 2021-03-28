@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "pyk8s.fullname" . }}:{{ .Values.service.port }}']
+      args: ['http:{{ $.Chart.Name }}-service}}.{{ .Values.namespace }}.svc.cluster.local:{{ .Values.service.port }}']
   restartPolicy: Never
