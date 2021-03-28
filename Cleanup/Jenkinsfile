@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('STAGING') {
+            environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'staging'
+            }
+
+            steps {
+                sh 'helm del --purge ${ENV} '
+                sh 'helm ls ${ENV}'
+            }
+        }
+        
+        stage('PRE-PROD') {
+            environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'pre-prod'
+            }
+
+            steps {
+                sh 'helm del --purge ${ENV} '
+                sh 'helm ls ${ENV}'
+            }
+        }
+        
+        
+        stage('PRODUCTION') {
+            environment {
+                    CONFIG = credentials('kubeconfig')
+                    ENV    = 'production'
+            }
+
+            steps {
+                sh 'helm del --purge ${ENV} '
+                sh 'helm ls ${ENV}'
+            }
+        }
+    }
+}
